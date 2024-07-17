@@ -1,7 +1,11 @@
 import React from 'react'
 
 const Home = () => {
-  return <div>Human Skills Learninf Platform </div>
+  return (
+    <section className="home">
+      <div>Human Skills Learninf Platform </div>
+    </section>
+  )
 }
 
 export default Home
