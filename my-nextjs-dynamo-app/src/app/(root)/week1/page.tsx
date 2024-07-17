@@ -1,7 +1,12 @@
+import ItemList from '@/components/ItemList'
 import React from 'react'
 
-const Home = () => {
-  return <div>Human Skills Learninf Platform </div>
+const Week1 = () => {
+  return (
+    <div>
+      Week 1<ItemList />
+    </div>
+  )
 }
 
-export default Home
+export default Week1
