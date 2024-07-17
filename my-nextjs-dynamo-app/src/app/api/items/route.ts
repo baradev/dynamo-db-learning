@@ -6,6 +6,7 @@ import {
   ScanCommand,
   UpdateCommand,
   DeleteCommand,
+  UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 
 export async function POST(request: Request) {
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
       { status: 201 }
     )
   } catch (error) {
+    console.error('Create error:', error)
     return NextResponse.json(
       { error: 'Could not create item' },
       { status: 500 }
@@ -47,6 +49,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Item not found' }, { status: 404 })
       }
     } catch (error) {
+      console.error('Get item error:', error)
       return NextResponse.json(
         { error: 'Could not retrieve item' },
         { status: 500 }
@@ -61,6 +64,7 @@ export async function GET(request: Request) {
       const { Items } = await dynamoDb.send(new ScanCommand(params))
       return NextResponse.json(Items)
     } catch (error) {
+      console.error('List items error:', error)
       return NextResponse.json(
         { error: 'Could not retrieve items' },
         { status: 500 }
@@ -78,15 +82,31 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'ID is required' }, { status: 400 })
   }
 
-  const params = {
+  let updateExpression = 'set'
+  let expressionAttributeNames: Record<string, string> = {}
+  let expressionAttributeValues: Record<string, any> = {}
+
+  // Dynamically build the update expression
+  if (updates.name !== undefined) {
+    updateExpression += ' #n = :n,'
+    expressionAttributeNames['#n'] = 'name'
+    expressionAttributeValues[':n'] = updates.name
+  }
+  if (updates.description !== undefined) {
+    updateExpression += ' #d = :d,'
+    expressionAttributeNames['#d'] = 'description'
+    expressionAttributeValues[':d'] = updates.description
+  }
+
+  // Remove trailing comma
+  updateExpression = updateExpression.slice(0, -1)
+
+  const params: UpdateCommandInput = {
     TableName: 'Items',
     Key: { id },
-    UpdateExpression: 'set #n = :n, description = :d',
-    ExpressionAttributeNames: { '#n': 'name' },
-    ExpressionAttributeValues: {
-      ':n': updates.name,
-      ':d': updates.description,
-    },
+    UpdateExpression: updateExpression,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
     ReturnValues: 'ALL_NEW',
   }
 
@@ -94,32 +114,9 @@ export async function PUT(request: Request) {
     const { Attributes } = await dynamoDb.send(new UpdateCommand(params))
     return NextResponse.json(Attributes)
   } catch (error) {
+    console.error('Update error:', error)
     return NextResponse.json(
-      { error: 'Could not update item' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const id = searchParams.get('id')
-
-  if (!id) {
-    return NextResponse.json({ error: 'ID is required' }, { status: 400 })
-  }
-
-  const params = {
-    TableName: 'Items',
-    Key: { id },
-  }
-
-  try {
-    await dynamoDb.send(new DeleteCommand(params))
-    return NextResponse.json({ message: 'Item deleted successfully' })
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Could not delete item' },
+      { error: 'Could not update item', details: (error as Error).message },
       { status: 500 }
     )
   }
