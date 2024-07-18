@@ -11,9 +11,13 @@ const Sidebar = () => {
     <aside className="sidebar">
       <div className="flex size-full flex-col gap-4">
         <nav className="sidebar-nav">
-          <ul className='sidebar-nav_elements'>
-          <Link href="/">Home</Link>
-          <Link href="/week1">Week 1</Link>
+          <ul className="sidebar-nav_elements">
+            <Link className="sidebar-link" href="/">
+              Home
+            </Link>
+            <Link className="sidebar-link" href="/week1">
+              Week 1
+            </Link>
           </ul>
         </nav>
       </div>

@@ -3,7 +3,7 @@ import React from 'react'
 const Home = () => {
   return (
     <section className="home">
-      <div>Human Skills Learning Platform </div>
+      <h1 className="home-heading">Human Skills Learning Platform </h1>
     </section>
   )
 }
