@@ -1,10 +1,12 @@
+import Header from '@/components/Header'
 import ItemList from '@/components/ItemList'
 import React from 'react'
 
 const Week1 = () => {
   return (
     <div>
-      Week 1<ItemList />
+      <Header title="Week 1" />
+      <ItemList />
     </div>
   )
 }
